@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { Breadcrumb } from "@/components/navigation/Breadcrumb";
 import { useProduct } from "@/features/catalog/hooks/useProduct";
 import { ProductInfoPanel } from "@/features/product/components/ProductInfoPanel";
+import { VariantOptionsPanel } from "@/features/product/components/VariantOptionsPanel";
 
 export default function ProductDetailsPage() {
   const params = useParams<{ handle: string }>();
@@ -30,10 +31,7 @@ export default function ProductDetailsPage() {
   return (
     <div className="max-w-5xl w-full flex flex-col gap-6">
       <Breadcrumb
-        items={[
-          { label: "Products", href: "/products" },
-          { label: p.title },
-        ]}
+        items={[{ label: "Products", href: "/products" }, { label: p.title }]}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -57,6 +55,8 @@ export default function ProductDetailsPage() {
           }}
           description={p.description}
         />
+
+        <VariantOptionsPanel options={p.options} />
       </div>
     </div>
   );

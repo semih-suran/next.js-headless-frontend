@@ -1,11 +1,33 @@
 import { useShopifyQuery } from "@/lib/useShopifyQuery";
 import { GET_PRODUCT_BY_HANDLE } from "../queries/getProductByHandle";
-import type { ProductSummary } from "../types";
+
+type ProductOption = {
+  name: string;
+  values: string[];
+};
+
+type Product = {
+  id: string;
+  title: string;
+  description?: string | null;
+
+  featuredImage?: {
+    url: string;
+    altText?: string | null;
+  } | null;
+
+  priceRange?: {
+    minVariantPrice?: {
+      amount: string;
+      currencyCode: string;
+    };
+  };
+
+  options?: ProductOption[];
+};
 
 type ProductResponse = {
-  product: ProductSummary & {
-    description?: string | null;
-  } | null;
+  product: Product | null;
 };
 
 export function useProduct(handle: string) {
