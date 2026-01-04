@@ -24,7 +24,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </main>
 
       <footer className="border-t text-xs opacity-70 py-4 text-center">
-        Demo storefront — Shopify Storefront API
+        Shopify Storefront API
       </footer>
     </div>
   );
