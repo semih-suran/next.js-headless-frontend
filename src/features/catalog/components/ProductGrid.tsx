@@ -2,19 +2,18 @@
 
 import Image from "next/image";
 import { useProducts } from "../hooks/useProducts";
+import { ProductGridSkeleton } from "./ProductGridSkeleton";
 
 export function ProductGrid() {
   const { data, isLoading, error } = useProducts(12);
 
   if (isLoading) {
-    return <p className="text-sm opacity-70">Loading products…</p>;
+    return <ProductGridSkeleton />;
   }
 
   if (error) {
     return (
-      <p className="text-red-600">
-        Failed to load products. Please try again.
-      </p>
+      <p className="text-red-600">Failed to load products. Please try again.</p>
     );
   }
 
