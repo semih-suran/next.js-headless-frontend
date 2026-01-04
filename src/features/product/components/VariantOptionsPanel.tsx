@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 
 type Variant = {
   id: string;
@@ -15,18 +15,27 @@ type Props = {
     values: string[];
   }[];
   variants?: Variant[];
+  onResolve?: (variant: Variant | null) => void;
 };
 
-export function VariantOptionsPanel({ options, variants }: Props) {
+export function VariantOptionsPanel({ options, variants, onResolve }: Props) {
   const [selection, setSelection] = useState<Record<string, string>>({});
 
   const resolvedVariant = useMemo(() => {
     if (!variants) return null;
 
-    return variants.find((v) =>
-      v.selectedOptions.every((opt) => selection[opt.name] === opt.value)
-    ) ?? null;
+    return (
+      variants.find((v) =>
+        v.selectedOptions.every(
+          (opt) => selection[opt.name] === opt.value
+        )
+      ) ?? null
+    );
   }, [variants, selection]);
+
+  useEffect(() => {
+    onResolve?.(resolvedVariant);
+  }, [resolvedVariant, onResolve]);
 
   if (!options || options.length === 0) {
     return null;
@@ -50,8 +59,11 @@ export function VariantOptionsPanel({ options, variants }: Props) {
                     setSelection((prev) => ({ ...prev, [opt.name]: v }))
                   }
                   className={`px-3 py-1 rounded text-sm border
-                    ${isSelected ? "bg-black text-white" : "bg-white"}
-                  `}
+                    ${
+                      isSelected
+                        ? "bg-black text-white"
+                        : "bg-white"
+                    }`}
                 >
                   {v}
                 </button>
@@ -60,10 +72,6 @@ export function VariantOptionsPanel({ options, variants }: Props) {
           </div>
         </div>
       ))}
-
-      <p className="text-xs opacity-70 mt-2">
-        Resolved variant: {resolvedVariant?.title ?? "—"}
-      </p>
     </div>
   );
 }
