@@ -7,33 +7,34 @@ type Props = {
     currencyCode?: string;
   };
   description?: string | null;
+  isReady?: boolean;
 };
 
-export function ProductInfoPanel({ title, price, description }: Props) {
+export function ProductInfoPanel({ title, price, description, isReady }: Props) {
   return (
     <div className="flex flex-col gap-3">
       <h1 className="text-2xl font-bold">{title}</h1>
 
-      {price && (
-        <p className="text-lg font-semibold">
+      {price?.amount && (
+        <p className="text-sm opacity-70">
           {price.amount} {price.currencyCode}
         </p>
       )}
 
       {description && (
-        <p className="text-sm leading-relaxed opacity-90">{description}</p>
+        <p className="text-sm leading-relaxed">{description}</p>
       )}
 
-      <div className="mt-4 p-3 border rounded bg-gray-50">
-        <p className="text-sm opacity-80 mb-2">
-          Purchase actions coming soon
-        </p>
-
+      <div className="mt-4">
         <button
-          disabled
-          className="border px-4 py-2 rounded opacity-60 cursor-not-allowed"
+          disabled={!isReady}
+          className={`border px-4 py-2 rounded ${
+            isReady
+              ? "bg-black text-white"
+              : "opacity-50 cursor-not-allowed"
+          }`}
         >
-          Add to Cart
+          {isReady ? "Add to Cart" : "Select options to continue"}
         </button>
       </div>
     </div>
