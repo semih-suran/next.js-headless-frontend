@@ -1,10 +1,11 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
+
 import { useProducts } from "../hooks/useProducts";
 import { ProductGridSkeleton } from "./ProductGridSkeleton";
 import { ProductGridEmpty } from "./ProductGridEmpty";
-
 
 export function ProductGrid() {
   const { data, isLoading, error } = useProducts(12);
@@ -15,22 +16,25 @@ export function ProductGrid() {
 
   if (error) {
     return (
-      <p className="text-red-600">Failed to load products. Please try again.</p>
+      <p className="text-red-600">
+        Failed to load products. Please try again.
+      </p>
     );
   }
 
   const products = data?.products?.nodes ?? [];
 
   if (products.length === 0) {
-  return <ProductGridEmpty />;
-}
+    return <ProductGridEmpty />;
+  }
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mt-6 w-full max-w-5xl">
       {products.map((p) => (
-        <div
+        <Link
           key={p.id}
-          className="border rounded-lg p-3 flex flex-col gap-2 bg-white shadow-sm"
+          href={`/products/${p.handle}`}
+          className="border rounded-lg p-3 flex flex-col gap-2 bg-white shadow-sm hover:shadow transition"
         >
           {p.featuredImage?.url ? (
             <Image
@@ -45,13 +49,14 @@ export function ProductGrid() {
               No image
             </div>
           )}
+
           <h3 className="font-semibold text-sm">{p.title}</h3>
 
           <p className="text-sm opacity-70">
             {p.priceRange?.minVariantPrice?.amount}{" "}
             {p.priceRange?.minVariantPrice?.currencyCode}
           </p>
-        </div>
+        </Link>
       ))}
     </div>
   );
