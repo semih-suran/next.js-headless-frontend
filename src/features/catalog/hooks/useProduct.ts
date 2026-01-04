@@ -6,6 +6,16 @@ type ProductOption = {
   values: string[];
 };
 
+type ProductVariant = {
+  id: string;
+  title: string;
+  availableForSale: boolean;
+  selectedOptions: {
+    name: string;
+    value: string;
+  }[];
+};
+
 type Product = {
   id: string;
   title: string;
@@ -24,6 +34,10 @@ type Product = {
   };
 
   options?: ProductOption[];
+
+  variants?: {
+    nodes: ProductVariant[];
+  };
 };
 
 type ProductResponse = {

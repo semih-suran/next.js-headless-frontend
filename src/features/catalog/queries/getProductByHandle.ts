@@ -4,19 +4,34 @@ export const GET_PRODUCT_BY_HANDLE = /* GraphQL */ `
       id
       title
       description
+
       featuredImage {
         url
         altText
       }
+
       priceRange {
         minVariantPrice {
           amount
           currencyCode
         }
       }
+
       options {
         name
         values
+      }
+
+      variants(first: 50) {
+        nodes {
+          id
+          title
+          availableForSale
+          selectedOptions {
+            name
+            value
+          }
+        }
       }
     }
   }
