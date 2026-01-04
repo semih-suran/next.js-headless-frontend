@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 type Props = {
   options?: {
     name: string;
@@ -8,6 +10,8 @@ type Props = {
 };
 
 export function VariantOptionsPanel({ options }: Props) {
+  const [selection, setSelection] = useState<Record<string, string>>({});
+
   if (!options || options.length === 0) {
     return null;
   }
@@ -19,15 +23,24 @@ export function VariantOptionsPanel({ options }: Props) {
           <p className="text-sm font-medium">{opt.name}</p>
 
           <div className="flex flex-wrap gap-2">
-            {opt.values.map((v) => (
-              <button
-                key={v}
-                disabled
-                className="px-3 py-1 border rounded text-sm opacity-70 cursor-not-allowed"
-              >
-                {v}
-              </button>
-            ))}
+            {opt.values.map((v) => {
+              const isSelected = selection[opt.name] === v;
+
+              return (
+                <button
+                  key={v}
+                  type="button"
+                  onClick={() =>
+                    setSelection((prev) => ({ ...prev, [opt.name]: v }))
+                  }
+                  className={`px-3 py-1 rounded text-sm border
+                    ${isSelected ? "bg-black text-white" : "bg-white"}
+                  `}
+                >
+                  {v}
+                </button>
+              );
+            })}
           </div>
         </div>
       ))}
