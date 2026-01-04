@@ -8,6 +8,7 @@ import { Breadcrumb } from "@/components/navigation/Breadcrumb";
 import { useProduct } from "@/features/catalog/hooks/useProduct";
 import { ProductInfoPanel } from "@/features/product/components/ProductInfoPanel";
 import { VariantOptionsPanel } from "@/features/product/components/VariantOptionsPanel";
+import { useCartViewModel } from "@/features/cart/hooks/useCartViewModel";
 
 type ResolvedVariant = {
   id: string;
@@ -22,6 +23,8 @@ export default function ProductDetailsPage() {
   const { data, isLoading, error } = useProduct(handle);
   const p = data?.product ?? null;
 
+  const { cart, requestAddToCart } = useCartViewModel();
+
   const [resolvedVariant, setResolvedVariant] =
     useState<ResolvedVariant | null>(null);
 
@@ -30,8 +33,7 @@ export default function ProductDetailsPage() {
 
     const single = p.variants?.nodes?.[0];
     const hasNoOptions = !p.options || p.options.length === 0;
-    const onlyOneVariant =
-      !!p.variants?.nodes && p.variants.nodes.length === 1;
+    const onlyOneVariant = !!p.variants?.nodes && p.variants.nodes.length === 1;
 
     if (hasNoOptions && onlyOneVariant && single) {
       return {
@@ -45,6 +47,11 @@ export default function ProductDetailsPage() {
   }, [p]);
 
   const activeVariant = resolvedVariant ?? autoResolvedVariant;
+
+  function handleAddToCart() {
+    if (!activeVariant) return;
+    requestAddToCart(activeVariant.id, 1);
+  }
 
   if (!handle) {
     return <p className="text-red-600">Invalid product reference.</p>;
@@ -61,10 +68,7 @@ export default function ProductDetailsPage() {
   return (
     <div className="max-w-5xl w-full flex flex-col gap-6">
       <Breadcrumb
-        items={[
-          { label: "Products", href: "/products" },
-          { label: p.title },
-        ]}
+        items={[{ label: "Products", href: "/products" }, { label: p.title }]}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -89,6 +93,16 @@ export default function ProductDetailsPage() {
           description={p.description}
           isReady={!!activeVariant}
         />
+
+        <div>
+          <button
+            disabled={!activeVariant || cart.status === "updating"}
+            onClick={handleAddToCart}
+            className="border px-4 py-2 rounded"
+          >
+            {cart.status === "updating" ? "Adding…" : "Add to Cart"}
+          </button>
+        </div>
 
         <VariantOptionsPanel
           options={p.options}
