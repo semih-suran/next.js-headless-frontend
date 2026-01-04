@@ -3,6 +3,8 @@
 import Image from "next/image";
 import { useProducts } from "../hooks/useProducts";
 import { ProductGridSkeleton } from "./ProductGridSkeleton";
+import { ProductGridEmpty } from "./ProductGridEmpty";
+
 
 export function ProductGrid() {
   const { data, isLoading, error } = useProducts(12);
@@ -18,6 +20,10 @@ export function ProductGrid() {
   }
 
   const products = data?.products?.nodes ?? [];
+
+  if (products.length === 0) {
+  return <ProductGridEmpty />;
+}
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mt-6 w-full max-w-5xl">
