@@ -14,6 +14,10 @@ export const GET_PRODUCT_BY_HANDLE = /* GraphQL */ `
           currencyCode
         }
       }
+      options {
+        name
+        values
+      }
     }
   }
 `;
