@@ -2,16 +2,19 @@
 
 import Image from "next/image";
 import { useParams } from "next/navigation";
+
 import { Breadcrumb } from "@/components/navigation/Breadcrumb";
 import { useProduct } from "@/features/catalog/hooks/useProduct";
+import { ProductInfoPanel } from "@/features/product/components/ProductInfoPanel";
 
 export default function ProductDetailsPage() {
   const params = useParams<{ handle: string }>();
   const handle = params?.handle ?? "";
+
   const { data, isLoading, error } = useProduct(handle);
 
   if (!handle) {
-  return <p className="text-red-600">Invalid product reference.</p>;
+    return <p className="text-red-600">Invalid product reference.</p>;
   }
 
   if (isLoading) {
@@ -46,27 +49,14 @@ export default function ProductDetailsPage() {
           )}
         </div>
 
-        <div className="flex flex-col gap-3">
-          <h1 className="text-2xl font-bold">{p.title}</h1>
-
-          <p className="text-sm opacity-70">
-            {p.priceRange?.minVariantPrice?.amount}{" "}
-            {p.priceRange?.minVariantPrice?.currencyCode}
-          </p>
-
-          {p.description && (
-            <p className="text-sm leading-relaxed">{p.description}</p>
-          )}
-
-          <div className="mt-4">
-            <button
-              disabled
-              className="border px-4 py-2 rounded opacity-70"
-            >
-              Add to Cart (coming soon)
-            </button>
-          </div>
-        </div>
+        <ProductInfoPanel
+          title={p.title}
+          price={{
+            amount: p.priceRange?.minVariantPrice?.amount,
+            currencyCode: p.priceRange?.minVariantPrice?.currencyCode,
+          }}
+          description={p.description}
+        />
       </div>
     </div>
   );
