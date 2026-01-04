@@ -1,16 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+
+type Variant = {
+  id: string;
+  title: string;
+  availableForSale: boolean;
+  selectedOptions: { name: string; value: string }[];
+};
 
 type Props = {
   options?: {
     name: string;
     values: string[];
   }[];
+  variants?: Variant[];
 };
 
-export function VariantOptionsPanel({ options }: Props) {
+export function VariantOptionsPanel({ options, variants }: Props) {
   const [selection, setSelection] = useState<Record<string, string>>({});
+
+  const resolvedVariant = useMemo(() => {
+    if (!variants) return null;
+
+    return variants.find((v) =>
+      v.selectedOptions.every((opt) => selection[opt.name] === opt.value)
+    ) ?? null;
+  }, [variants, selection]);
 
   if (!options || options.length === 0) {
     return null;
@@ -44,6 +60,10 @@ export function VariantOptionsPanel({ options }: Props) {
           </div>
         </div>
       ))}
+
+      <p className="text-xs opacity-70 mt-2">
+        Resolved variant: {resolvedVariant?.title ?? "—"}
+      </p>
     </div>
   );
 }

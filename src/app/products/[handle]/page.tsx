@@ -56,7 +56,7 @@ export default function ProductDetailsPage() {
           description={p.description}
         />
 
-        <VariantOptionsPanel options={p.options} />
+        <VariantOptionsPanel options={p.options} variants={p.variants?.nodes} />
       </div>
     </div>
   );
