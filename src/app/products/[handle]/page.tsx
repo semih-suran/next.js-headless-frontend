@@ -23,7 +23,7 @@ export default function ProductDetailsPage() {
   const { data, isLoading, error } = useProduct(handle);
   const p = data?.product ?? null;
 
-  const { cart, requestAddToCart } = useCartViewModel();
+  const { cart, addVariant } = useCartViewModel();
 
   const [resolvedVariant, setResolvedVariant] =
     useState<ResolvedVariant | null>(null);
@@ -50,7 +50,7 @@ export default function ProductDetailsPage() {
 
   function handleAddToCart() {
     if (!activeVariant) return;
-    requestAddToCart(activeVariant.id, 1);
+    addVariant(activeVariant.id);
   }
 
   if (!handle) {
@@ -102,6 +102,12 @@ export default function ProductDetailsPage() {
           >
             {cart.status === "updating" ? "Adding…" : "Add to Cart"}
           </button>
+
+          {cart.status === "error" && (
+            <p className="text-red-600 text-sm mt-2">
+              Something went wrong. Try again.
+            </p>
+          )}
         </div>
 
         <VariantOptionsPanel
