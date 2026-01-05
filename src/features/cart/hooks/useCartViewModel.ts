@@ -1,37 +1,40 @@
 import { useState } from "react";
-import type { CartViewModel } from "../types";
+import { createCart, addToCart } from "../services/cartClient";
 
-const initialState: CartViewModel = {
-  status: "idle",
-  items: [],
+type CartState = {
+  id: string | null;
+  status: "idle" | "updating" | "error";
 };
 
 export function useCartViewModel() {
-  const [cart, setCart] = useState<CartViewModel>(initialState);
+  const [cart, setCart] = useState<CartState>({
+    id: null,
+    status: "idle",
+  });
 
-  function requestAddToCart(variantId: string, quantity = 1) {
-    setCart((prev) => ({
-      ...prev,
-      status: "updating",
-      pendingIntent: {
-        type: "add",
-        variantId,
-        quantity,
-      },
-    }));
+  async function addVariant(variantId: string) {
+    setCart((c) => ({ ...c, status: "updating" }));
+
+    try {
+      const updated =
+        cart.id === null
+          ? await createCart(variantId)
+          : await addToCart(cart.id, variantId);
+
+      setCart({ id: updated.id, status: "idle" });
+    } catch (err) {
+      console.error("Cart mutation failed:", err);
+      setCart((c) => ({ ...c, status: "error" }));
+    }
   }
 
-  function clearIntent() {
-    setCart((prev) => ({
-      ...prev,
-      status: "idle",
-      pendingIntent: undefined,
-    }));
+  function resetError() {
+    setCart((c) => ({ ...c, status: "idle" }));
   }
 
   return {
     cart,
-    requestAddToCart,
-    clearIntent,
+    addVariant,
+    resetError,
   };
 }

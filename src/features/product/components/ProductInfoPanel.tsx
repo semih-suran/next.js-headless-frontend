@@ -2,41 +2,29 @@
 
 type Props = {
   title: string;
-  price?: {
+  price: {
     amount?: string;
     currencyCode?: string;
   };
   description?: string | null;
-  isReady?: boolean;
+  isReady: boolean;
+  cta?: React.ReactNode;
 };
 
-export function ProductInfoPanel({ title, price, description, isReady }: Props) {
+export function ProductInfoPanel({ title, price, description, cta }: Props) {
   return (
     <div className="flex flex-col gap-3">
       <h1 className="text-2xl font-bold">{title}</h1>
 
-      {price?.amount && (
-        <p className="text-sm opacity-70">
-          {price.amount} {price.currencyCode}
-        </p>
-      )}
+      <p className="text-sm opacity-70">
+        {price.amount} {price.currencyCode}
+      </p>
 
       {description && (
         <p className="text-sm leading-relaxed">{description}</p>
       )}
 
-      <div className="mt-4">
-        <button
-          disabled={!isReady}
-          className={`border px-4 py-2 rounded ${
-            isReady
-              ? "bg-black text-white"
-              : "opacity-50 cursor-not-allowed"
-          }`}
-        >
-          {isReady ? "Add to Cart" : "Select options to continue"}
-        </button>
-      </div>
+      {cta && <div className="mt-4">{cta}</div>}
     </div>
   );
 }
