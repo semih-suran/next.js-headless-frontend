@@ -4,22 +4,35 @@ import { useCartViewModel } from "@/features/cart/hooks/useCartViewModel";
 import { useCartDetails } from "@/features/cart/hooks/useCartDetails";
 
 export default function CartPage() {
-  const { cart: cartState } = useCartViewModel();
+  const { cart: cartState, updateLine, removeLine } = useCartViewModel();
 
   const effectiveCartId =
     cartState.status === "restoring" ? null : cartState.id;
 
-  const { data, isLoading, error } = useCartDetails(effectiveCartId);
+  const { data, isLoading, error, mutate } =
+    useCartDetails(effectiveCartId);
 
   const lines = data?.cart?.lines.edges ?? [];
   const subtotal = data?.cart?.cost?.subtotalAmount;
+
+  const isBusy = cartState.status === "updating";
+
+  async function handleQty(id: string, qty: number) {
+    await updateLine(id, qty);
+    await mutate();
+  }
+
+  async function handleRemove(id: string) {
+    await removeLine(id);
+    await mutate();
+  }
 
   return (
     <div className="max-w-4xl w-full flex flex-col gap-4">
       <h1 className="text-2xl font-bold">Cart</h1>
 
       {cartState.status === "restoring" ? (
-        <p className="opacity-70 text-sm">Restoring cart…</p>
+        <p className="opacity-70 text-sm">&nbsp;</p>
       ) : !cartState.id ? (
         <p className="opacity-70 text-sm">
           Your cart is empty. Items you add will appear here.
@@ -38,15 +51,18 @@ export default function CartPage() {
         <>
           <ul className="border rounded divide-y">
             {lines.map(({ node }) => {
-              const price =
-                node.cost?.totalAmount?.amount ??
+              const unit = parseFloat(
                 node.merchandise.price?.amount ??
-                "0.00";
+                  node.cost?.totalAmount?.amount ??
+                  "0"
+              );
 
               const currency =
-                node.cost?.totalAmount?.currencyCode ??
                 node.merchandise.price?.currencyCode ??
+                node.cost?.totalAmount?.currencyCode ??
                 "";
+
+              const lineTotal = unit * node.quantity;
 
               return (
                 <li
@@ -62,11 +78,45 @@ export default function CartPage() {
                     </span>
                   </div>
 
-                  <div className="text-right">
-                    <p className="text-sm">Qty: {node.quantity}</p>
-                    <p className="text-xs opacity-70">
-                      {price} {currency}
-                    </p>
+                  <div className="flex items-center gap-3">
+                    <button
+                      disabled={isBusy || node.quantity <= 1}
+                      className="border px-2 rounded disabled:opacity-40"
+                      onClick={() =>
+                        handleQty(node.id, node.quantity - 1)
+                      }
+                    >
+                      −
+                    </button>
+
+                    <span className="text-sm">{node.quantity}</span>
+
+                    <button
+                      disabled={isBusy}
+                      className="border px-2 rounded disabled:opacity-40"
+                      onClick={() =>
+                        handleQty(node.id, node.quantity + 1)
+                      }
+                    >
+                      +
+                    </button>
+
+                    <button
+                      disabled={isBusy}
+                      className="text-red-600 text-xs ml-2 disabled:opacity-40"
+                      onClick={() => handleRemove(node.id)}
+                    >
+                      Remove
+                    </button>
+
+                    <div className="text-right ml-4">
+                      <p className="text-sm">
+                        {lineTotal.toFixed(2)} {currency}
+                      </p>
+                      <p className="text-xs opacity-70">
+                        {unit.toFixed(2)} {currency} each
+                      </p>
+                    </div>
                   </div>
                 </li>
               );
