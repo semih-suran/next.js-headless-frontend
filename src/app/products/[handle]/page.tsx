@@ -33,7 +33,8 @@ export default function ProductDetailsPage() {
 
     const single = p.variants?.nodes?.[0];
     const hasNoOptions = !p.options || p.options.length === 0;
-    const onlyOneVariant = !!p.variants?.nodes && p.variants.nodes.length === 1;
+    const onlyOneVariant =
+      !!p.variants?.nodes && p.variants.nodes.length === 1;
 
     if (hasNoOptions && onlyOneVariant && single) {
       return {
@@ -65,6 +66,8 @@ export default function ProductDetailsPage() {
     return <p className="text-red-600">Product not found.</p>;
   }
 
+  const requiresSelection = !!p.options?.length && !activeVariant;
+
   return (
     <div className="max-w-5xl w-full flex flex-col gap-6">
       <Breadcrumb
@@ -94,13 +97,30 @@ export default function ProductDetailsPage() {
           isReady={!!activeVariant}
         />
 
-        <div>
+        <VariantOptionsPanel
+          options={p.options}
+          variants={p.variants?.nodes}
+          onResolve={setResolvedVariant}
+        />
+
+        <div className="mt-2">
           <button
-            disabled={!activeVariant || cart.status === "updating"}
+            disabled={requiresSelection || cart.status === "updating"}
             onClick={handleAddToCart}
-            className="border px-4 py-2 rounded"
+            className={`px-4 py-2 rounded border text-sm font-medium transition
+              ${
+                requiresSelection
+                  ? "bg-gray-200 border-gray-300 text-gray-500 cursor-not-allowed"
+                  : cart.status === "updating"
+                  ? "bg-gray-800 text-white opacity-70"
+                  : "bg-black text-white"
+              }`}
           >
-            {cart.status === "updating" ? "Adding…" : "Add to Cart"}
+            {requiresSelection
+              ? "Pick an option first"
+              : cart.status === "updating"
+              ? "Adding…"
+              : "Add to Cart"}
           </button>
 
           {cart.status === "error" && (
@@ -109,12 +129,6 @@ export default function ProductDetailsPage() {
             </p>
           )}
         </div>
-
-        <VariantOptionsPanel
-          options={p.options}
-          variants={p.variants?.nodes}
-          onResolve={setResolvedVariant}
-        />
       </div>
     </div>
   );
