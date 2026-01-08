@@ -1,60 +1,50 @@
-"use client";
+import Link from 'next/link';
+import Image from 'next/image';
+import { ProductSummary } from '../types';
 
-import Image from "next/image";
-import Link from "next/link";
+interface ProductGridProps {
+  products: ProductSummary[];
+}
 
-import { useProducts } from "../hooks/useProducts";
-import { ProductGridSkeleton } from "./ProductGridSkeleton";
-import { ProductGridEmpty } from "./ProductGridEmpty";
-
-export function ProductGrid() {
-  const { data, isLoading, error } = useProducts(12);
-
-  if (isLoading) {
-    return <ProductGridSkeleton />;
-  }
-
-  if (error) {
-    return (
-      <p className="text-red-600">
-        Failed to load products. Please try again.
-      </p>
-    );
-  }
-
-  const products = data?.products?.nodes ?? [];
-
-  if (products.length === 0) {
-    return <ProductGridEmpty />;
-  }
-
+export function ProductGrid({ products }: ProductGridProps) {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mt-6 w-full max-w-5xl">
-      {products.map((p) => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+      {products.map((product) => (
         <Link
-          key={p.id}
-          href={`/products/${p.handle}`}
-          className="border rounded-lg p-3 flex flex-col gap-2 bg-white shadow-sm hover:shadow transition"
+          key={product.id}
+          href={`/products/${product.handle}`}
+          className="group block"
         >
-          {p.featuredImage?.url ? (
-            <Image
-              src={p.featuredImage.url}
-              alt={p.featuredImage.altText ?? p.title}
-              width={400}
-              height={400}
-              className="rounded object-cover w-full h-auto"
-            />
-          ) : (
-            <div className="w-full aspect-square rounded bg-gray-100 flex items-center justify-center text-xs text-gray-500">
-              No image
-            </div>
-          )}
+          <div className="aspect-square relative overflow-hidden bg-gray-100 rounded-lg mb-4">
+            {product.featuredImage ? (
+              <Image
+                src={product.featuredImage.url}
+                alt={product.featuredImage.altText || product.title}
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-300"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-gray-300">
+                No Image
+              </div>
+            )}
+            
+            {!product.availableForSale && (
+              <div className="absolute top-2 right-2 bg-black text-white text-xs font-bold px-2 py-1 rounded">
+                SOLD OUT
+              </div>
+            )}
+          </div>
 
-          <h3 className="font-semibold text-sm">{p.title}</h3>
-
-          <p className="text-sm opacity-70">
-            {p.priceRange?.minVariantPrice?.amount}{" "}
-            {p.priceRange?.minVariantPrice?.currencyCode}
+          <h3 className="text-sm font-medium text-gray-900 group-hover:underline">
+            {product.title}
+          </h3>
+          <p className="mt-1 text-sm text-gray-500">
+            {new Intl.NumberFormat('en-US', {
+              style: 'currency',
+              currency: product.priceRange.minVariantPrice.currencyCode,
+            }).format(parseFloat(product.priceRange.minVariantPrice.amount))}
           </p>
         </Link>
       ))}
